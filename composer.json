@@ -1,0 +1,27 @@
+{
+    "name": "aitch-kay/i-schema",
+    "description": "Simple Information Schema Inspection Utility",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "hugo",
+            "email": "hugo.kalidas@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "AitchKay\\ISchema\\": "src/AitchKay/ISchema"
+        }
+    },
+    "require-dev":{
+        "mockery/mockery": "~0.9.4",
+        "phpunit/phpunit": "~4.1",
+        "raveren/kint":"^1.0"
+
+    },
+    "require": {
+        "php": ">=5.5.9",
+        "illuminate/support": ">=4.2"
+
+    }
+}
