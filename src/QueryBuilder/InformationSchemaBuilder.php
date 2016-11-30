@@ -1,5 +1,8 @@
 <?php
 
+/*
+ * todo make compatible with sql_mode=only_full_group_by
+ * */
 
 namespace AitchKay\ISchema\QueryBuilder;
 

@@ -70,7 +70,7 @@ class Table extends AbstractISchema
 
     public function listColumns()
     {
-        return $this->getColumns()->lists('column_name')->all();
+        return $this->getColumns()->pluck('column_name')->all();
 
     }
 
@@ -143,13 +143,16 @@ class Table extends AbstractISchema
     public function getForeignKeysTables()
     {
 
-        return $this->getForeignKeys()->lists('referenced_table');
+        return $this->getForeignKeys()->pluck('referenced_table');
 
     }
 
     public function getPrimaryIndex()
     {
-       return $this->getIndexes()->first(function($i,$index){return $index->isPrimary();});
+       return $this->getIndexes()->first(function($index,$i){
+
+           return $index->isPrimary();
+       });
     }
 
     public function getReferringTables()
@@ -174,7 +177,7 @@ class Table extends AbstractISchema
         $tables=$this->getReferringTables();
 
         foreach ($constraints as $constraint){
-            $table = $tables->first(function($i,$table)use($constraint){
+            $table = $tables->first(function($table,$i)use($constraint){
 
                 return $table->name == $constraint->table_name;
             });
@@ -188,13 +191,16 @@ class Table extends AbstractISchema
     public function getRawIndexes()
     {
         $query = $this->builder->getIndexesQuery($this->getDatabase(), $this->name);
+
         return new Collection($this->getDbService()->query($query)->fetchAllAssoc());
 
     }
 
     public function getIndexes()
     {
+
        $raw_indexes = $this->getRawIndexes()->groupBy('index_name');
+
         $indexes = new Collection();
         $raw_indexes->each(function($collection)use($indexes){
             $columns = new Collection();
@@ -203,7 +209,8 @@ class Table extends AbstractISchema
                     $columns->push($this->getColumn($index_column['column_name']));
 
             });
-            $foreign_keys=$this->getForeignKeyConstraints()->lists('column_name')->all();
+            $foreign_keys=$this->getForeignKeyConstraints()->pluck('column_name')->all();
+
             if(!in_array($collection->first()['column_name'],$foreign_keys)) {
                 $is_unique = !$collection->first()['non_unique'];
                 $is_primary = $columns->first()->column_key=='PRI';
@@ -227,7 +234,7 @@ class Table extends AbstractISchema
     public function isPivot()
     {
 
-        $foreign_tables=$this->getForeignKeysTables()->lists('name')->all();
+        $foreign_tables=$this->getForeignKeysTables()->pluck('name')->all();
 
         foreach ($foreign_tables as $iTable){
             foreach ($foreign_tables as $kTable){
