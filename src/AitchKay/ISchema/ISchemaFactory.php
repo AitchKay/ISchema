@@ -27,7 +27,7 @@ class ISchemaFactory
             ) {
 
                 return static::create(new DAL\PDOConnection($connection['driver'],
-                    $connection['host'], $connection['database'], $connection['user'], $connection['password']));
+                    $connection['host'], $connection['database'], $connection['username'], $connection['password']));
             }
         } else return false;
 
