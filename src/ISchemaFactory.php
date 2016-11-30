@@ -23,7 +23,7 @@ class ISchemaFactory
             if (!isset($connection['host'])) $connection['host'] = 'localhost';
 
             if (isset($connection['driver']) and isset($connection['database'])
-                and isset($connection['user']) and isset($connection['password'])
+                and isset($connection['username']) and isset($connection['password'])
             ) {
 
                 return static::create(new DAL\PDOConnection($connection['driver'],
