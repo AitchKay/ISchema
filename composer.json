@@ -10,7 +10,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "AitchKay\\ISchema\\": "src/AitchKay/ISchema"
+            "AitchKay\\ISchema\\": "src/"
         }
     },
     "require-dev":{
