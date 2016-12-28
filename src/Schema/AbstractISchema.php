@@ -30,14 +30,15 @@ abstract class AbstractISchema
     /**
      * ISchema constructor.
      * @param PDO $connection
+     * @param QueryBuilderRepository $builder
      */
-    public function __construct(PDO $connection)
+    public function __construct(PDO $connection, QueryBuilderRepository $builder)
     {
         $this->setConnection($connection);
         $this->setDbService(new PDOWrapper($connection));
         $this->setDatabase();
         //todo resolve from ioc
-        $this->builder = new QueryBuilderRepository(new InformationSchemaBuilder());
+        $this->builder = $builder;
     }
 
     /**
@@ -49,6 +50,7 @@ abstract class AbstractISchema
     }
 
 
+
     /**
      * @param PDO $connection
      */
@@ -56,7 +58,9 @@ abstract class AbstractISchema
     {
         $connection->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
         $this->connection = $connection;
+
     }
+
 
     /**
      * @return PDOWrapper
@@ -90,8 +94,16 @@ abstract class AbstractISchema
     private function setDatabase()
     {
         $this->database = $this->getDbService()->query('select database()')->fetchColumn();;
+        //sql server
+        if(!$this->database) $this->database = $this->getDbService()->query('select DB_NAME()')->fetchColumn();;
 
     }
+
+    public function getBuilder()
+    {
+        return $this->builder;
+    }
+
 
 
 }

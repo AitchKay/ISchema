@@ -41,29 +41,32 @@ class Table extends AbstractISchema
      */
 
     protected $foreign_keys;
+    protected $schema;
 
 
     /**
      * Table constructor.
      * todo resolve dependencies through ioc remove pdo;
-     * @param PDO $connection
+     * @param ISchema $schema
      * @param $name string
      */
-    public function __construct(PDO $connection, $name)
+    public function __construct(ISchema $schema, $name)
     {
         $this->name = $name;
-        parent::__construct($connection);
-        $this->setColumns();
+        $this->schema=$schema;
+        parent::__construct($schema->getConnection(),$schema->getBuilder());
     }
 
 
     public function getColumns()
     {
+        if(!$this->columns) $this->setColumns();
         return $this->columns;
     }
 
     protected function setColumns()
     {
+        //dd($this->builder,$this->name);
         $query = $this->builder->getTableColumnsQuery($this->getDatabase(), $this->name);
         $this->columns = new Collection($this->getDbService()->query($query)->fetchAllClass('AitchKay\ISchema\Schema\Column'));
     }
@@ -131,7 +134,7 @@ class Table extends AbstractISchema
 
         $foreign_constraints->each(function ($constraint) use (&$foreign_keys) {
             $column = $this->getColumn($constraint->column_name);
-            $foreign_table = new static($this->getConnection(), $constraint->referenced_table_name);
+            $foreign_table = new static($this->schema, $constraint->referenced_table_name);
             $foreign_column = $foreign_table->getColumn($constraint->referenced_column_name);
             $foreign_keys[] = new ForeignKey($constraint, $this, $column, $foreign_table, $foreign_column);
         });
@@ -145,6 +148,13 @@ class Table extends AbstractISchema
 
         return $this->getForeignKeys()->pluck('referenced_table');
 
+    }
+
+    public function getPrimaryKeyName()
+    {
+        $query = $this->builder->getPrimaryKeyQuery($this->getDatabase(), $this->name);
+        $names = $this->getDbService()->query($query)->lists();
+        return $names;
     }
 
     public function getPrimaryIndex()
@@ -162,7 +172,7 @@ class Table extends AbstractISchema
         $collection = new Collection();
 
         foreach ($names as $name) {
-            $collection->push(new static($this->getConnection(), $name));
+            $collection->push(new static($this->schema, $name));
         }
 
         return $collection;
@@ -243,6 +253,14 @@ class Table extends AbstractISchema
         }
 
         return false;
+    }
+
+    /**
+     * @return ISchema
+     */
+    public function getSchema()
+    {
+        return $this->schema;
     }
 
 }

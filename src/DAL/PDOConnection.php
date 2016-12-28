@@ -2,6 +2,8 @@
 namespace AitchKay\ISchema\DAL;
 
 
+use PDO;
+
 class PDOConnection implements PDOInterface
 {
 
@@ -10,7 +12,7 @@ class PDOConnection implements PDOInterface
     private $database;
     private $user;
     private $password;
-    private $dns;
+    private $dsn;
     private $pdo;
 
     public function __construct($driver, $host, $database, $user, $password)
@@ -20,7 +22,7 @@ class PDOConnection implements PDOInterface
         $this->database = $database;
         $this->user = $user;
         $this->password = $password;
-        $this->setDns();
+        $this->setDsn();
         $this->setPdo();
 
     }
@@ -28,9 +30,13 @@ class PDOConnection implements PDOInterface
     /**
      *
      */
-    private function setDns()
+    private function setDsn()
     {
-        $this->dns = $this->driver . ':dbname=' . $this->database . ";host=" . $this->host;
+        if($this->driver=='sqlsrv') $this->dsn ="dblib:host=".$this->host.':1433'. ';dbname=' . $this->database.";charset=utf8";
+        else
+        $this->dsn = $this->driver . ':dbname=' . $this->database . ";host=" . $this->host;
+
+
     }
 
     public function getPdo()
@@ -40,15 +46,20 @@ class PDOConnection implements PDOInterface
 
     protected function setPdo()
     {
-        $this->pdo = new \PDO($this->getDns(), $this->user, $this->password);
+
+        $this->pdo = new PDO($this->getDsn(), $this->user, $this->password);
 
     }
 
     /**
      * @return string
      */
-    private function getDns()
+    private function getDsn()
     {
-        return $this->dns;
+        return $this->dsn;
+    }
+
+    public function getDriver(){
+        return $this->driver;
     }
 }

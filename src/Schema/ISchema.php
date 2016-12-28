@@ -53,7 +53,7 @@ class ISchema extends AbstractISchema
             $tables = $this->listTables();
             $a_tables = [];
             foreach ($tables as $table) {
-                $a_tables[$table] = new Table($this->getConnection(), $table);
+                $a_tables[$table] = new Table($this, $table);
             }
             $tables = new Collection($a_tables);
             $this->tables = $tables;

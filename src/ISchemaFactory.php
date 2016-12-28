@@ -2,6 +2,9 @@
 
 
 namespace AitchKay\ISchema;
+use AitchKay\ISchema\QueryBuilder\InformationSchemaBuilder;
+use AitchKay\ISchema\QueryBuilder\QueryBuilderRepository;
+use AitchKay\ISchema\QueryBuilder\SQLServerSchemaBuilder;
 
 
 /**
@@ -16,8 +19,12 @@ class ISchemaFactory
     static function create($connection)
     {
         if ($connection instanceof DAL\PDOInterface) {
-            $pdo = $connection->getPdo();
-            return new Schema\ISchema($pdo);
+            if($connection->getDriver()=='sqlsrv') {
+                $builder = new QueryBuilderRepository(new SQLServerSchemaBuilder());
+            }
+            else $builder = new QueryBuilderRepository(new InformationSchemaBuilder());
+
+            return new Schema\ISchema($connection->getPdo(),$builder);
         } else if (is_array($connection)) {
 
             if (!isset($connection['host'])) $connection['host'] = 'localhost';
